@@ -1,5 +1,6 @@
 import numpy as np 
 import glove as glove
+from utils import read_csv
 
 from keras.models import Model 
 from keras.layers import Dense, Input, Dropout, LSTM, Activation 
@@ -36,6 +37,21 @@ def load_model(input_shape, word_to_vec_map, word_to_index):
     model = Model(inputs=input_indices, outputs=X)
     return model
 
-# todo: load training data
+def load_dataset():
+    X_train, Y_train = read_csv("./data/train_emoji.csv")
+    X_test, Y_test = read_csv("./data/test.csv")
+    max_word_count = len(max(X_train, key=len).split())
 
-# todo: training model
+    return (max_word_count, X_train, Y_train, X_test, Y_test)
+
+def words_to_indices(input, word_to_index, max_word_count):
+    m = input.shape[0]
+    input_indices = np.zeros([m, max_word_count])
+    for i in range(m):
+        statement_words = list(word.lower() for word in input[i].split())
+        j = 0
+
+        for w in statement_words:
+            input_indices[i, j] = word_to_index[w]
+            j = j + 1
+    return input_indices
